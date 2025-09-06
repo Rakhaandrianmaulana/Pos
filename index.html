@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iot Lana Project v.0.9 (Hardened)</title>
+    <title>Iot Lana Project v.1.0 (Robust)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
@@ -14,7 +14,7 @@
         .card { background-color: #1c1917; border: 1px solid #44403c; border-radius: 0.75rem; padding: 1.5rem; }
         .action-button { background: linear-gradient(90deg, #3b82f6, #6366f1); transition: all 0.3s ease; box-shadow: 0 4px 15px 0 rgba(99, 102, 241, 0.5); }
         .action-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.6); }
-        .action-button:disabled { background: #57534e; color: #a8a29e; cursor: not-allowed; box-shadow: none; opacity: 0.5; }
+        .action-button:disabled { background: #57534e; color: #a8a29e; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
         .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #6366f1; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(12, 10, 9, 0.8); display: flex; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(8px); }
@@ -28,19 +28,19 @@
     <!-- Consent Modal -->
     <div id="consentModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4 text-white">Selamat Datang di Lana v.0.9</h2>
-            <p class="text-stone-300 mb-6">Versi ini telah ditingkatkan dengan keamanan dan stabilitas. Sistem kehadiran kini menggunakan metode "Heartbeat" yang lebih andal.</p>
+            <h2 class="text-2xl font-bold mb-4 text-white">Selamat Datang di Lana v.1.0</h2>
+            <p class="text-stone-300 mb-6">Aplikasi ini akan meminta izin untuk fitur lokal (GPS, Bluetooth) dan mencoba terhubung ke server untuk monitoring. Fitur lokal akan tetap berfungsi jika server tidak tersedia.</p>
             <div class="flex justify-end gap-4">
                 <button id="declineButton" class="px-5 py-2 rounded-md text-stone-300 bg-stone-600 hover:bg-stone-700 font-semibold">Tolak</button>
-                <button id="agreeButton" class="px-5 py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700">Setuju & Masuk</button>
+                <button id="agreeButton" class="px-5 py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700">Setuju & Lanjutkan</button>
             </div>
         </div>
     </div>
 
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">IoT Lana Dashboard <span class="text-lg align-middle font-mono bg-red-600 text-white rounded-md px-2 py-1">v.0.9</span></h1>
-            <p class="text-stone-400">Dasbor Aman dengan Sistem Monitoring "Heartbeat"</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">IoT Lana Dashboard <span class="text-lg align-middle font-mono bg-blue-600 text-white rounded-md px-2 py-1">v.1.0</span></h1>
+            <p class="text-stone-400">Dasbor Robust dengan Arsitektur Terpisah</p>
         </header>
 
         <div id="app-content" class="hidden space-y-8">
@@ -67,7 +67,7 @@
                          <p id="memoryWarning" class="text-xs text-yellow-500 mt-2 hidden"><i class="fas fa-exclamation-triangle mr-1"></i>Performa akan menurun setelah kuota habis.</p>
                     </div>
                 </div>
-                 <div id="systemStatus" class="text-xs text-stone-500 mt-4 pt-4 border-t border-stone-600 flex items-center"><div class="spinner mr-2"></div><span>Menghubungkan ke layanan sistem...</span></div>
+                 <div id="systemStatus" class="text-xs text-stone-500 mt-4 pt-4 border-t border-stone-600 flex items-center"><div class="spinner mr-2"></div><span>Mencoba terhubung ke layanan monitoring...</span></div>
             </div>
 
             <!-- Functional Cards Grid -->
@@ -82,13 +82,13 @@
                             <a id="mapLink" href="#" target="_blank" rel="noopener noreferrer" class="action-button inline-block w-full sm:w-auto text-white font-semibold py-2 px-6 rounded-lg text-center"><i class="fas fa-map-marker-alt mr-2"></i>Buka di Peta</a>
                         </div>
                     </div>
-                    <div id="locationPlaceholder" class="flex items-center justify-center py-4"><span class="ml-3 text-stone-400">Fitur lokasi dinonaktifkan hingga sistem siap.</span></div>
+                    <div id="locationPlaceholder" class="flex items-center justify-center py-4"><div class="spinner"></div><span class="ml-3 text-stone-300">Meminta izin lokasi...</span></div>
                 </div>
                 <div class="card">
                     <h2 class="text-xl font-semibold text-white mb-4">Analisis Koneksi Aktif</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="text-center"><div class="text-stone-400 text-sm">Tipe</div><div class="text-xl font-bold flex items-center justify-center gap-2"><i id="connectionIcon" class="fas fa-wifi"></i><span id="connectionType"></span></div></div>
-                        <div class="text-center"><div class="text-stone-400 text-sm">Kualitas</div><div id="effectiveType" class="text-xl font-bold text-cyan-400"></div></div>
+                        <div class="text-center"><div class="text-stone-400 text-sm">Tipe</div><div class="text-xl font-bold flex items-center justify-center gap-2"><i id="connectionIcon" class="fas fa-wifi"></i><span id="connectionType">N/A</span></div></div>
+                        <div class="text-center"><div class="text-stone-400 text-sm">Kualitas</div><div id="effectiveType" class="text-xl font-bold text-cyan-400">N/A</div></div>
                         <div class="text-center"><div class="text-stone-400 text-sm">Downlink</div><div class="text-xl font-bold"><span id="downlink">-</span> <span class="text-base text-stone-400">Mbps</span></div></div>
                         <div class="text-center"><div class="text-stone-400 text-sm">Ping</div><div id="pingResult" class="text-xl font-bold text-amber-400">- ms</div></div>
                     </div>
@@ -123,8 +123,7 @@
         const connectionIcon = document.getElementById('connectionIcon'), connectionType = document.getElementById('connectionType'), effectiveType = document.getElementById('effectiveType'), downlink = document.getElementById('downlink'), pingResult = document.getElementById('pingResult'), pingButton = document.getElementById('pingButton');
         const scanBluetoothButton = document.getElementById('scanBluetoothButton'), bluetoothList = document.getElementById('bluetoothList');
         const scanNfcButton = document.getElementById('scanNfcButton'), nfcStatus = document.getElementById('nfcStatus'), nfcContent = document.getElementById('nfcContent');
-        const allActionButtons = document.querySelectorAll('.action-button');
-
+        
         // --- Constants & State ---
         const MEMORY_LIMIT_MB = 1048576; // 1 TB
         const BOT_BASE_COUNT = 300;
@@ -134,113 +133,58 @@
         const sessionId = crypto.randomUUID();
         let heartbeatInterval;
 
-        // --- Application State Management ---
-        function setSystemReady(isReady, message) {
-            if (isReady) {
-                systemStatus.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i><span>${message}</span>`;
-                allActionButtons.forEach(btn => btn.disabled = false);
-                locationPlaceholder.innerHTML = `<div class="spinner"></div><span class="ml-3 text-stone-300">Mencari lokasi...</span>`;
-                 setupGeolocation();
-            } else {
-                systemStatus.innerHTML = `<i class="fas fa-times-circle mr-2 text-red-500"></i><span>${message}</span>`;
-                allActionButtons.forEach(btn => btn.disabled = true);
-            }
-        }
-
         // --- Gimmick: Memory & Lag ---
-        function setupMemoryManager() { /* ... (no changes) ... */ const today=new Date().toISOString().split('T')[0];let d=JSON.parse(localStorage.getItem('lanaMemory_v9'))||{};if(d.date!==today){d={date:today,usage:0};localStorage.setItem('lanaMemory_v9',JSON.stringify(d));}updateMemoryUI(); }
-        function consumeMemory(amountMB) { /* ... (no changes) ... */ let d=JSON.parse(localStorage.getItem('lanaMemory_v9'));d.usage+=amountMB;localStorage.setItem('lanaMemory_v9',JSON.stringify(d));updateMemoryUI(); }
-        function getMemoryUsage() { return(JSON.parse(localStorage.getItem('lanaMemory_v9'))||{usage:0}).usage; }
+        function setupMemoryManager() { const today=new Date().toISOString().split('T')[0];let d=JSON.parse(localStorage.getItem('lanaMemory_v10'))||{};if(d.date!==today){d={date:today,usage:0};localStorage.setItem('lanaMemory_v10',JSON.stringify(d));}updateMemoryUI(); }
+        function consumeMemory(amountMB) { let d=JSON.parse(localStorage.getItem('lanaMemory_v10'));d.usage+=amountMB;localStorage.setItem('lanaMemory_v10',JSON.stringify(d));updateMemoryUI(); }
+        function getMemoryUsage() { return(JSON.parse(localStorage.getItem('lanaMemory_v10'))||{usage:0}).usage; }
         function formatBytes(mb){if(mb===0)return'0 MB';const gb=mb/1024;const tb=gb/1024;if(tb>=1)return tb.toFixed(2)+' TB';if(gb>=1)return gb.toFixed(1)+' GB';return mb+' MB';}
-        function updateMemoryUI() { /* ... (no changes) ... */ const u=getMemoryUsage();const p=Math.min((u/MEMORY_LIMIT_MB)*100,100);memoryUsageTextEl.textContent=`${formatBytes(u)} / 1.0 TB`;memoryProgressBarEl.style.width=`${p}%`;if(p>=80){memoryProgressBarEl.style.background='linear-gradient(90deg, #f97316, #ef4444)';memoryWarningEl.classList.remove('hidden');}}
+        function updateMemoryUI() { const u=getMemoryUsage();const p=Math.min((u/MEMORY_LIMIT_MB)*100,100);memoryUsageTextEl.textContent=`${formatBytes(u)} / 1.0 TB`;memoryProgressBarEl.style.width=`${p}%`;if(p>=80){memoryProgressBarEl.style.background='linear-gradient(90deg, #f97316, #ef4444)';memoryWarningEl.classList.remove('hidden');}}
         async function simulateLag() { if (getMemoryUsage() >= MEMORY_LIMIT_MB) { const end = Date.now() + 300; while (Date.now() < end) {} } }
         
         // --- Realtime: Bot & User Count ---
-        function startBotSimulator() { setInterval(() => { simulatedBotCount = BOT_BASE_COUNT + Math.floor(Math.random()*11)-5; updateTotalUsersUI(); }, 3000); }
-        function updateTotalUsersUI() { botUserCountEl.textContent = simulatedBotCount; realUserCountEl.textContent = realUserCount; totalUserCountEl.textContent = realUserCount + simulatedBotCount; }
+        function startBotSimulator() { updateTotalUsersUI(); setInterval(() => { simulatedBotCount = BOT_BASE_COUNT + Math.floor(Math.random()*11)-5; updateTotalUsersUI(); }, 3000); }
+        function updateTotalUsersUI() { botUserCountEl.textContent = simulatedBotCount; realUserCountEl.textContent = realUserCount > 0 ? realUserCount : 'N/A'; totalUserCountEl.textContent = realUserCount > 0 ? realUserCount + simulatedBotCount : simulatedBotCount; }
 
-        // --- NEW: Heartbeat Presence System ---
-        function setupPresenceSystem() {
+        // --- Heartbeat Presence System ---
+        function setupPresenceSystem(db) {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const presenceCollection = collection(db, 'artifacts', appId, 'public', 'data', 'presence_v9');
+            const presenceCollection = collection(db, 'artifacts', appId, 'public', 'data', 'presence_v10');
             const userDocRef = doc(presenceCollection, sessionId);
-
-            // 1. Send initial heartbeat and set up periodic updates
-            const sendHeartbeat = () => {
-                setDoc(userDocRef, { lastSeen: serverTimestamp() }, { merge: true })
-                    .catch(err => console.error("Heartbeat failed:", err));
-            };
+            const sendHeartbeat = () => setDoc(userDocRef, { lastSeen: serverTimestamp() }, { merge: true }).catch(err => console.error("Heartbeat failed:", err));
             sendHeartbeat();
-            heartbeatInterval = setInterval(sendHeartbeat, 15000); // Send heartbeat every 15 seconds
-
-            // 2. On disconnect, try to clean up
-            window.addEventListener('beforeunload', () => {
-                clearInterval(heartbeatInterval);
-                deleteDoc(userDocRef); // Best effort, might not run
-            });
-            
-            // 3. Listen for changes and clean up stale sessions
-            let isFirstLoad = true;
-            onSnapshot(presenceCollection, async (snapshot) => {
+            heartbeatInterval = setInterval(sendHeartbeat, 15000);
+            window.addEventListener('beforeunload', () => { clearInterval(heartbeatInterval); deleteDoc(userDocRef); });
+            onSnapshot(presenceCollection, (snapshot) => {
                 const now = Date.now();
-                const batch = writeBatch(db);
                 let activeUsers = 0;
-                
-                snapshot.docs.forEach(doc => {
-                    const lastSeen = doc.data().lastSeen?.toMillis() || 0;
-                    // Consider offline if last seen is more than 30 seconds ago
-                    if (now - lastSeen < 30000) {
-                        activeUsers++;
-                    } else {
-                         // This client will clean up one stale document per snapshot to distribute the load
-                        if (isFirstLoad) {
-                           batch.delete(doc.ref);
-                        }
-                    }
-                });
-                
-                if (isFirstLoad && !batch.empty) {
-                    await batch.commit().catch(err => console.warn("Stale session cleanup failed:", err));
-                    isFirstLoad = false;
-                }
-
+                snapshot.docs.forEach(doc => { if (now - (doc.data().lastSeen?.toMillis() || 0) < 30000) activeUsers++; });
                 realUserCount = activeUsers;
                 updateTotalUsersUI();
-            }, (error) => {
-                console.error("Presence snapshot error:", error);
-                setSystemReady(false, `Kesalahan sinkronisasi: ${error.code}`);
-            });
+            }, (error) => { console.error("Presence snapshot error:", error); realUserCount=0; updateTotalUsersUI(); });
         }
         
-        // --- Firebase Initialization ---
+        // --- Firebase Initialization (Now Optional) ---
         async function initializeFirebase() {
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO_ONLY" };
-            if (firebaseConfig.apiKey === "DEMO_ONLY") { setSystemReady(false, "Konfigurasi server tidak ditemukan."); return; }
             try {
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO_ONLY" };
+                if (firebaseConfig.apiKey === "DEMO_ONLY") throw new Error("Konfigurasi server tidak ditemukan.");
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 await signInAnonymously(auth);
-                setSystemReady(true, "Sistem terhubung dan aman.");
-                setupPresenceSystem();
+                systemStatus.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i><span>Layanan monitoring online terhubung.</span>`;
+                setupPresenceSystem(db);
             } catch (error) {
-                setSystemReady(false, `Gagal terhubung ke server: ${error.message}`);
+                systemStatus.innerHTML = `<i class="fas fa-exclamation-triangle mr-2 text-yellow-500"></i><span>Layanan monitoring online gagal: ${error.message}</span>`;
+                realUserCount = 0;
+                updateTotalUsersUI();
             }
         }
         
-        // --- Functional Features ---
-        async function performAction(costMB, actionFn, ...args) {
-            await simulateLag();
-            consumeMemory(costMB);
-            try {
-                await actionFn(...args);
-            } catch (error) {
-                console.error(`Action failed: ${actionFn.name}`, error);
-            }
-        }
-
-        function setupGeolocation() { /* ... (no changes) ... */ if(!navigator.geolocation){locationPlaceholder.textContent='Geolocation tidak didukung.';return;}navigator.geolocation.watchPosition(p=>{locationPlaceholder.classList.add('hidden');locationContent.classList.remove('hidden');const{latitude,longitude,accuracy}=p.coords;latitudeEl.textContent=latitude.toFixed(6);longitudeEl.textContent=longitude.toFixed(6);accuracyEl.textContent=`${Math.round(accuracy)}m`;mapLink.href=`https://www.google.com/maps?q=${latitude},${longitude}`;},()=>{locationPlaceholder.innerHTML=`<span class="text-yellow-400"><i class="fas fa-ban mr-2"></i>Akses lokasi ditolak.</span>`;},{enableHighAccuracy:true});}
-        function setupNetworkInfo() { /* ... (no changes) ... */ if('connection'in navigator){const u=()=>{const c=navigator.connection;connectionType.textContent=(c.type||'N/A').toUpperCase();const i={'wifi':'fa-wifi','cellular':'fa-signal','ethernet':'fa-ethernet'};connectionIcon.className=`fas ${i[c.type]||'fa-question-circle'}`;effectiveType.textContent=(c.effectiveType||'N/A').toUpperCase();downlink.textContent=c.downlink?c.downlink.toFixed(1):'-';};u();navigator.connection.addEventListener('change',u);}}
+        // --- Core Functional Features ---
+        async function performAction(costMB, actionFn, ...args) { await simulateLag(); consumeMemory(costMB); try { await actionFn(...args); } catch (error) { console.error(`Action failed: ${actionFn.name}`, error); } }
+        function setupGeolocation() { if(!navigator.geolocation){locationPlaceholder.textContent='Geolocation tidak didukung.';return;}navigator.geolocation.watchPosition(p=>{locationPlaceholder.classList.add('hidden');locationContent.classList.remove('hidden');const{latitude,longitude,accuracy}=p.coords;latitudeEl.textContent=latitude.toFixed(6);longitudeEl.textContent=longitude.toFixed(6);accuracyEl.textContent=`${Math.round(accuracy)}m`;mapLink.href=`https://www.google.com/maps?q=${latitude},${longitude}`;},()=>{locationPlaceholder.innerHTML=`<span class="text-yellow-400"><i class="fas fa-ban mr-2"></i>Akses lokasi ditolak.</span>`;},{enableHighAccuracy:true});}
+        function setupNetworkInfo() { if('connection'in navigator){const u=()=>{const c=navigator.connection;connectionType.textContent=(c.type||'N/A').toUpperCase();const i={'wifi':'fa-wifi','cellular':'fa-signal','ethernet':'fa-ethernet'};connectionIcon.className=`fas ${i[c.type]||'fa-question-circle'}`;effectiveType.textContent=(c.effectiveType||'N/A').toUpperCase();downlink.textContent=c.downlink?c.downlink.toFixed(1):'-';};u();navigator.connection.addEventListener('change',u);}}
         async function measurePing() { pingButton.disabled = true; pingResult.innerHTML = '<div class="spinner mx-auto"></div>'; try { const start = performance.now(); await fetch('https://1.1.1.1/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' }); pingResult.textContent = `${Math.round(performance.now() - start)} ms`; } catch (e) { pingResult.textContent = 'Error'; } finally { pingButton.disabled = false; } }
         async function scanBluetoothDevices() { try { const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true }); const li = document.createElement('li'); li.className = 'flex items-center p-3 bg-stone-800 rounded-lg'; li.innerHTML = `<i class="fas fa-mobile-alt fa-lg mr-4 text-stone-400"></i><div><div class="font-semibold text-white">${device.name||'Tanpa Nama'}</div><div class="text-xs text-stone-500 font-mono">${device.id}</div></div>`; bluetoothList.prepend(li); } catch (err) { if(err.name !== 'NotFoundError') console.error('BT Error:', err); } }
         async function scanNfcTag() { try { const ndef = new NDEFReader(); await ndef.scan(); nfcStatus.textContent = 'Siap memindai... Dekatkan tag NFC.'; nfcStatus.classList.remove('hidden'); nfcContent.classList.add('hidden'); ndef.onreading = ({ message, serialNumber }) => { nfcStatus.textContent = `Tag Ditemukan! (Serial: ${serialNumber||'N/A'})`; nfcContent.innerHTML = ''; message.records.forEach(r => { const text = new TextDecoder().decode(r.data); nfcContent.innerHTML += `<div><strong class="text-indigo-300">${r.recordType}:</strong> ${text}</div>`; }); nfcContent.classList.remove('hidden'); }; } catch (error) { nfcStatus.textContent = `Error: ${error.message}`; nfcStatus.classList.remove('hidden'); } }
@@ -251,16 +195,20 @@
             consentModal.style.display = 'none';
             appContent.classList.remove('hidden');
             
-            allActionButtons.forEach(btn => btn.disabled = true);
+            // Initialize local features immediately
             setupMemoryManager();
             startBotSimulator();
             setupNetworkInfo();
             setupFeatureSupport();
-            await initializeFirebase();
-
+            setupGeolocation();
+            
+            // Assign listeners
             pingButton.addEventListener('click', () => performAction(25, measurePing));
             scanBluetoothButton.addEventListener('click', () => performAction(150, scanBluetoothDevices));
             scanNfcButton.addEventListener('click', () => performAction(75, scanNfcTag));
+            
+            // Attempt to connect to online services (optional)
+            await initializeFirebase();
         }
 
         agreeButton.addEventListener('click', startApp);
