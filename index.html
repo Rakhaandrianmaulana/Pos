@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iot Lana Project v.0.6 (NFC)</title>
+    <title>Iot Lana Project v.0.9 (Hardened)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
@@ -14,12 +14,13 @@
         .card { background-color: #1c1917; border: 1px solid #44403c; border-radius: 0.75rem; padding: 1.5rem; }
         .action-button { background: linear-gradient(90deg, #3b82f6, #6366f1); transition: all 0.3s ease; box-shadow: 0 4px 15px 0 rgba(99, 102, 241, 0.5); }
         .action-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.6); }
-        .action-button:disabled { background: #57534e; color: #a8a29e; cursor: not-allowed; box-shadow: none; }
+        .action-button:disabled { background: #57534e; color: #a8a29e; cursor: not-allowed; box-shadow: none; opacity: 0.5; }
         .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #6366f1; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(12, 10, 9, 0.8); display: flex; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(8px); }
         .modal-content { background-color: #1c1917; padding: 2rem; border-radius: 0.75rem; max-width: 500px; width: 90%; border: 1px solid #57534e; }
+        .progress-bar-container { background-color: #3f3f46; border-radius: 9999px; }
+        .progress-bar { background: linear-gradient(90deg, #16a34a, #22c55e); transition: width 0.5s ease-in-out; }
     </style>
 </head>
 <body class="antialiased">
@@ -27,25 +28,50 @@
     <!-- Consent Modal -->
     <div id="consentModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4 text-white">Izin Akses Diperlukan</h2>
-            <p class="text-stone-300 mb-6">Aplikasi ini memerlukan izin untuk mengakses **Jaringan, Lokasi, Bluetooth, dan NFC** untuk berfungsi. Data Anda tidak disimpan dan hanya diproses di perangkat Anda.</p>
+            <h2 class="text-2xl font-bold mb-4 text-white">Selamat Datang di Lana v.0.9</h2>
+            <p class="text-stone-300 mb-6">Versi ini telah ditingkatkan dengan keamanan dan stabilitas. Sistem kehadiran kini menggunakan metode "Heartbeat" yang lebih andal.</p>
             <div class="flex justify-end gap-4">
                 <button id="declineButton" class="px-5 py-2 rounded-md text-stone-300 bg-stone-600 hover:bg-stone-700 font-semibold">Tolak</button>
-                <button id="agreeButton" class="px-5 py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700">Setuju</button>
+                <button id="agreeButton" class="px-5 py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700">Setuju & Masuk</button>
             </div>
         </div>
     </div>
 
-    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">IoT Lana Dashboard <span class="text-lg align-middle font-mono bg-green-600 text-white rounded-md px-2 py-1">v.0.6</span></h1>
-            <p class="text-stone-400">Analisis Real-Time: Koneksi, Lokasi, Perangkat & Tag NFC</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-2">IoT Lana Dashboard <span class="text-lg align-middle font-mono bg-red-600 text-white rounded-md px-2 py-1">v.0.9</span></h1>
+            <p class="text-stone-400">Dasbor Aman dengan Sistem Monitoring "Heartbeat"</p>
         </header>
 
-        <div id="app-content" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <div class="space-y-8">
-                <!-- Location Card -->
+        <div id="app-content" class="hidden space-y-8">
+            <!-- System Monitoring Card -->
+            <div class="card">
+                <h2 class="text-xl font-semibold text-white mb-4"><i class="fas fa-shield-heart mr-3 text-purple-400"></i>Status Sistem & Monitoring</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+                    <div>
+                        <div class="text-stone-400 text-sm mb-2">Pengguna Online</div>
+                        <div class="text-4xl font-bold text-white mb-2" id="totalUserCount">...</div>
+                        <div class="flex justify-around text-center text-sm">
+                            <div><span class="text-green-400" id="realUserCount">...</span><br><span class="text-stone-500">Nyata</span></div>
+                            <div><span class="text-cyan-400" id="botUserCount">...</span><br><span class="text-stone-500">Bot</span></div>
+                        </div>
+                    </div>
+                    <div>
+                         <div class="text-stone-400 text-sm mb-2 flex justify-between">
+                            <span>Penggunaan Memori Harian</span>
+                            <span id="memoryUsageText" class="font-mono">0 MB / 1.0 TB</span>
+                        </div>
+                        <div class="progress-bar-container w-full h-4 overflow-hidden">
+                            <div id="memoryProgressBar" class="progress-bar h-full" style="width: 0%;"></div>
+                        </div>
+                         <p id="memoryWarning" class="text-xs text-yellow-500 mt-2 hidden"><i class="fas fa-exclamation-triangle mr-1"></i>Performa akan menurun setelah kuota habis.</p>
+                    </div>
+                </div>
+                 <div id="systemStatus" class="text-xs text-stone-500 mt-4 pt-4 border-t border-stone-600 flex items-center"><div class="spinner mr-2"></div><span>Menghubungkan ke layanan sistem...</span></div>
+            </div>
+
+            <!-- Functional Cards Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="card">
                     <h2 class="text-xl font-semibold text-white mb-4 flex items-center"><i class="fas fa-location-arrow text-green-400 mr-3"></i>Lokasi Real-Time</h2>
                     <div id="locationContent" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
@@ -53,13 +79,11 @@
                         <div><div class="text-stone-400 text-sm">Longitude</div><div id="longitude" class="text-lg font-bold">-</div></div>
                         <div><div class="text-stone-400 text-sm">Akurasi</div><div id="accuracy" class="text-lg font-bold">-</div></div>
                         <div class="sm:col-span-3 mt-4">
-                            <a id="mapLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-block w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-6 rounded-lg text-center"><i class="fas fa-map-marker-alt mr-2"></i>Buka di Peta</a>
+                            <a id="mapLink" href="#" target="_blank" rel="noopener noreferrer" class="action-button inline-block w-full sm:w-auto text-white font-semibold py-2 px-6 rounded-lg text-center"><i class="fas fa-map-marker-alt mr-2"></i>Buka di Peta</a>
                         </div>
                     </div>
-                    <div id="locationPlaceholder" class="flex items-center justify-center py-4"><div class="spinner"></div><span class="ml-3 text-stone-300">Mencari lokasi...</span></div>
+                    <div id="locationPlaceholder" class="flex items-center justify-center py-4"><span class="ml-3 text-stone-400">Fitur lokasi dinonaktifkan hingga sistem siap.</span></div>
                 </div>
-
-                <!-- Network & Ping Card -->
                 <div class="card">
                     <h2 class="text-xl font-semibold text-white mb-4">Analisis Koneksi Aktif</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -68,112 +92,180 @@
                         <div class="text-center"><div class="text-stone-400 text-sm">Downlink</div><div class="text-xl font-bold"><span id="downlink">-</span> <span class="text-base text-stone-400">Mbps</span></div></div>
                         <div class="text-center"><div class="text-stone-400 text-sm">Ping</div><div id="pingResult" class="text-xl font-bold text-amber-400">- ms</div></div>
                     </div>
-                     <button id="pingButton" class="w-full mt-4 bg-stone-600 hover:bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg text-sm"><i class="fas fa-play mr-1"></i> Uji Ulang Ping</button>
-                    <p class="mt-4 pt-3 border-t border-stone-700 text-xs text-stone-500"><i class="fas fa-ban mr-1 text-red-500"></i><b>Catatan:</b> Pemindaian Wi-Fi sekitar tidak dimungkinkan di browser karena kebijakan privasi & keamanan. Ini adalah data koneksi Anda saat ini.</p>
+                     <button id="pingButton" class="w-full mt-4 bg-stone-600 hover:bg-stone-500 text-white font-semibold py-2 px-4 rounded-lg text-sm action-button"><i class="fas fa-play mr-1"></i> Uji Ping (Biaya: 25MB)</button>
                 </div>
-            </div>
-
-            <div class="space-y-8">
-                <!-- Bluetooth Card -->
                 <div class="card">
                     <h2 class="text-xl font-semibold text-white mb-4"><i class="fab fa-bluetooth-b text-blue-400 mr-3"></i>Pemindai Bluetooth</h2>
-                    <button id="scanBluetoothButton" class="action-button text-white font-bold py-2 px-5 rounded-lg"><i class="fas fa-search mr-2"></i>Cari Perangkat</button>
+                    <button id="scanBluetoothButton" class="action-button text-white font-bold py-2 px-5 rounded-lg"><i class="fas fa-search mr-2"></i>Cari Perangkat (Biaya: 150MB)</button>
                     <ul id="bluetoothList" class="mt-4 space-y-2"></ul>
                 </div>
-
-                <!-- NFC Card -->
                 <div class="card">
-                     <h2 class="text-xl font-semibold text-white mb-4"><i class="fas fa-nfc text-indigo-400 mr-3"></i>Pembaca Tag NFC</h2>
-                     <button id="scanNfcButton" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-5 rounded-lg"><i class="fas fa-nfc mr-2"></i>Pindai Tag NFC</button>
+                     <h2 class="text-xl font-semibold text-white mb-4"><i class="fas fa-tag text-indigo-400 mr-3"></i>Pembaca Tag NFC</h2>
+                     <button id="scanNfcButton" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-5 rounded-lg action-button"><i class="fas fa-search-plus mr-2"></i>Pindai Tag NFC (Biaya: 75MB)</button>
                      <div id="nfcStatus" class="mt-4 text-center text-stone-400 hidden"></div>
                      <div id="nfcContent" class="mt-4 hidden break-words p-3 bg-stone-800 rounded-lg"></div>
                 </div>
             </div>
         </div>
-        <div id="insecure-context-warning" class="hidden text-center card bg-red-900 border-red-700">...</div>
     </div>
 
-    <script>
-        // --- All Element References ---
-        const consentModal = document.getElementById('consentModal'), agreeButton = document.getElementById('agreeButton'), declineButton = document.getElementById('declineButton'), appContent = document.getElementById('app-content'), insecureContextWarning = document.getElementById('insecure-context-warning');
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // --- Element References ---
+        const consentModal = document.getElementById('consentModal'), agreeButton = document.getElementById('agreeButton'), declineButton = document.getElementById('declineButton'), appContent = document.getElementById('app-content');
+        const totalUserCountEl = document.getElementById('totalUserCount'), realUserCountEl = document.getElementById('realUserCount'), botUserCountEl = document.getElementById('botUserCount'), systemStatus = document.getElementById('systemStatus');
+        const memoryUsageTextEl = document.getElementById('memoryUsageText'), memoryProgressBarEl = document.getElementById('memoryProgressBar'), memoryWarningEl = document.getElementById('memoryWarning');
         const locationContent = document.getElementById('locationContent'), locationPlaceholder = document.getElementById('locationPlaceholder'), latitudeEl = document.getElementById('latitude'), longitudeEl = document.getElementById('longitude'), accuracyEl = document.getElementById('accuracy'), mapLink = document.getElementById('mapLink');
         const connectionIcon = document.getElementById('connectionIcon'), connectionType = document.getElementById('connectionType'), effectiveType = document.getElementById('effectiveType'), downlink = document.getElementById('downlink'), pingResult = document.getElementById('pingResult'), pingButton = document.getElementById('pingButton');
         const scanBluetoothButton = document.getElementById('scanBluetoothButton'), bluetoothList = document.getElementById('bluetoothList');
         const scanNfcButton = document.getElementById('scanNfcButton'), nfcStatus = document.getElementById('nfcStatus'), nfcContent = document.getElementById('nfcContent');
-        
-        // --- App Initialization ---
-        function initializeApp() {
-            consentModal.style.display = 'none';
-            if (!window.isSecureContext) { insecureContextWarning.classList.remove('hidden'); return; }
-            appContent.classList.remove('hidden');
-            setupGeolocation();
-            setupNetworkInfo();
-            setupBluetooth();
-            setupNFC(); // Initialize NFC
-            pingButton.addEventListener('click', measurePing);
-        }
+        const allActionButtons = document.querySelectorAll('.action-button');
 
-        // --- Geolocation, Network, Ping, Bluetooth Logic (Unchanged from v.0.5) ---
-        function setupGeolocation() { if (!navigator.geolocation) { locationPlaceholder.textContent = 'Geolocation tidak didukung.'; return; } navigator.geolocation.watchPosition(handleLocationSuccess, handleLocationError, { enableHighAccuracy: true }); }
-        function handleLocationSuccess(pos) { locationPlaceholder.classList.add('hidden'); locationContent.classList.remove('hidden'); const { latitude, longitude, accuracy } = pos.coords; latitudeEl.textContent = latitude.toFixed(6); longitudeEl.textContent = longitude.toFixed(6); accuracyEl.textContent = `${Math.round(accuracy)}m`; mapLink.href = `https://www.google.com/maps?q=${latitude},${longitude}`; }
-        function handleLocationError(err) { locationPlaceholder.innerHTML = `<span class="text-yellow-400"><i class="fas fa-ban mr-2"></i>Akses lokasi ditolak.</span>`; }
-        function setupNetworkInfo() { if ('connection' in navigator) { updateNetworkStatus(); navigator.connection.addEventListener('change', updateNetworkStatus); } }
-        function updateNetworkStatus() { const c = navigator.connection; connectionType.textContent = (c.type || 'N/A').toUpperCase(); const i = {'wifi':'fa-wifi','cellular':'fa-signal','ethernet':'fa-ethernet'}; connectionIcon.className=`fas ${i[c.type]||'fa-question-circle'}`; effectiveType.textContent = (c.effectiveType || 'N/A').toUpperCase(); downlink.textContent = c.downlink ? c.downlink.toFixed(1) : '-'; }
-        async function measurePing() { pingButton.disabled = true; pingResult.innerHTML = '<div class="spinner mx-auto"></div>'; try { const start = performance.now(); await fetch('https://1.1.1.1/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' }); pingResult.textContent = `${Math.round(performance.now() - start)} ms`; } catch (e) { pingResult.textContent = 'Error'; } finally { pingButton.disabled = false; } }
-        function setupBluetooth() { if (!navigator.bluetooth) { scanBluetoothButton.disabled = true; scanBluetoothButton.textContent = 'Tidak Didukung'; } else { scanBluetoothButton.addEventListener('click', scanBluetoothDevices); } }
-        async function scanBluetoothDevices() { try { const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true }); const li = document.createElement('li'); li.className = 'flex items-center p-3 bg-stone-800 rounded-lg'; li.innerHTML = `<i class="fas fa-mobile-alt fa-lg mr-4 text-stone-400"></i><div><div class="font-semibold text-white">${device.name || 'Tanpa Nama'}</div><div class="text-xs text-stone-500 font-mono">${device.id}</div></div>`; bluetoothList.prepend(li); } catch (err) { if (err.name !== 'NotFoundError') console.error('BT Error:', err); } }
+        // --- Constants & State ---
+        const MEMORY_LIMIT_MB = 1048576; // 1 TB
+        const BOT_BASE_COUNT = 300;
+        let db, auth;
+        let realUserCount = 0;
+        let simulatedBotCount = BOT_BASE_COUNT;
+        const sessionId = crypto.randomUUID();
+        let heartbeatInterval;
 
-        // --- NEW: NFC Logic ---
-        function setupNFC() {
-            if ('NDEFReader' in window) {
-                scanNfcButton.addEventListener('click', scanNfcTag);
+        // --- Application State Management ---
+        function setSystemReady(isReady, message) {
+            if (isReady) {
+                systemStatus.innerHTML = `<i class="fas fa-check-circle mr-2 text-green-500"></i><span>${message}</span>`;
+                allActionButtons.forEach(btn => btn.disabled = false);
+                locationPlaceholder.innerHTML = `<div class="spinner"></div><span class="ml-3 text-stone-300">Mencari lokasi...</span>`;
+                 setupGeolocation();
             } else {
-                scanNfcButton.disabled = true;
-                scanNfcButton.innerHTML = '<i class="fas fa-ban mr-2"></i>NFC Tidak Didukung';
-                nfcStatus.textContent = 'Browser Anda tidak mendukung Web NFC. Coba di Chrome pada Android.';
-                nfcStatus.classList.remove('hidden');
+                systemStatus.innerHTML = `<i class="fas fa-times-circle mr-2 text-red-500"></i><span>${message}</span>`;
+                allActionButtons.forEach(btn => btn.disabled = true);
             }
         }
 
-        async function scanNfcTag() {
-            try {
-                const ndef = new NDEFReader();
-                await ndef.scan();
+        // --- Gimmick: Memory & Lag ---
+        function setupMemoryManager() { /* ... (no changes) ... */ const today=new Date().toISOString().split('T')[0];let d=JSON.parse(localStorage.getItem('lanaMemory_v9'))||{};if(d.date!==today){d={date:today,usage:0};localStorage.setItem('lanaMemory_v9',JSON.stringify(d));}updateMemoryUI(); }
+        function consumeMemory(amountMB) { /* ... (no changes) ... */ let d=JSON.parse(localStorage.getItem('lanaMemory_v9'));d.usage+=amountMB;localStorage.setItem('lanaMemory_v9',JSON.stringify(d));updateMemoryUI(); }
+        function getMemoryUsage() { return(JSON.parse(localStorage.getItem('lanaMemory_v9'))||{usage:0}).usage; }
+        function formatBytes(mb){if(mb===0)return'0 MB';const gb=mb/1024;const tb=gb/1024;if(tb>=1)return tb.toFixed(2)+' TB';if(gb>=1)return gb.toFixed(1)+' GB';return mb+' MB';}
+        function updateMemoryUI() { /* ... (no changes) ... */ const u=getMemoryUsage();const p=Math.min((u/MEMORY_LIMIT_MB)*100,100);memoryUsageTextEl.textContent=`${formatBytes(u)} / 1.0 TB`;memoryProgressBarEl.style.width=`${p}%`;if(p>=80){memoryProgressBarEl.style.background='linear-gradient(90deg, #f97316, #ef4444)';memoryWarningEl.classList.remove('hidden');}}
+        async function simulateLag() { if (getMemoryUsage() >= MEMORY_LIMIT_MB) { const end = Date.now() + 300; while (Date.now() < end) {} } }
+        
+        // --- Realtime: Bot & User Count ---
+        function startBotSimulator() { setInterval(() => { simulatedBotCount = BOT_BASE_COUNT + Math.floor(Math.random()*11)-5; updateTotalUsersUI(); }, 3000); }
+        function updateTotalUsersUI() { botUserCountEl.textContent = simulatedBotCount; realUserCountEl.textContent = realUserCount; totalUserCountEl.textContent = realUserCount + simulatedBotCount; }
+
+        // --- NEW: Heartbeat Presence System ---
+        function setupPresenceSystem() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const presenceCollection = collection(db, 'artifacts', appId, 'public', 'data', 'presence_v9');
+            const userDocRef = doc(presenceCollection, sessionId);
+
+            // 1. Send initial heartbeat and set up periodic updates
+            const sendHeartbeat = () => {
+                setDoc(userDocRef, { lastSeen: serverTimestamp() }, { merge: true })
+                    .catch(err => console.error("Heartbeat failed:", err));
+            };
+            sendHeartbeat();
+            heartbeatInterval = setInterval(sendHeartbeat, 15000); // Send heartbeat every 15 seconds
+
+            // 2. On disconnect, try to clean up
+            window.addEventListener('beforeunload', () => {
+                clearInterval(heartbeatInterval);
+                deleteDoc(userDocRef); // Best effort, might not run
+            });
+            
+            // 3. Listen for changes and clean up stale sessions
+            let isFirstLoad = true;
+            onSnapshot(presenceCollection, async (snapshot) => {
+                const now = Date.now();
+                const batch = writeBatch(db);
+                let activeUsers = 0;
                 
-                nfcStatus.textContent = 'Siap memindai... Dekatkan tag NFC ke bagian belakang ponsel Anda.';
-                nfcStatus.classList.remove('hidden');
-                nfcContent.classList.add('hidden');
-
-                ndef.addEventListener('reading', ({ message, serialNumber }) => {
-                    nfcStatus.textContent = `Tag Ditemukan! (Serial: ${serialNumber || 'N/A'})`;
-                    nfcContent.innerHTML = ''; // Clear previous content
-                    
-                    for (const record of message.records) {
-                        const textDecoder = new TextDecoder(record.encoding);
-                        const text = textDecoder.decode(record.data);
-                        
-                        const recordEl = document.createElement('div');
-                        recordEl.className = 'mb-2';
-                        recordEl.innerHTML = `<strong class="text-indigo-300">Tipe:</strong> ${record.recordType}<br><strong class="text-indigo-300">Data:</strong> ${text}`;
-                        nfcContent.appendChild(recordEl);
+                snapshot.docs.forEach(doc => {
+                    const lastSeen = doc.data().lastSeen?.toMillis() || 0;
+                    // Consider offline if last seen is more than 30 seconds ago
+                    if (now - lastSeen < 30000) {
+                        activeUsers++;
+                    } else {
+                         // This client will clean up one stale document per snapshot to distribute the load
+                        if (isFirstLoad) {
+                           batch.delete(doc.ref);
+                        }
                     }
-                    nfcContent.classList.remove('hidden');
                 });
+                
+                if (isFirstLoad && !batch.empty) {
+                    await batch.commit().catch(err => console.warn("Stale session cleanup failed:", err));
+                    isFirstLoad = false;
+                }
 
-                 ndef.addEventListener('readingerror', () => {
-                    nfcStatus.textContent = 'Gagal membaca tag NFC. Silakan coba lagi.';
-                });
-
+                realUserCount = activeUsers;
+                updateTotalUsersUI();
+            }, (error) => {
+                console.error("Presence snapshot error:", error);
+                setSystemReady(false, `Kesalahan sinkronisasi: ${error.code}`);
+            });
+        }
+        
+        // --- Firebase Initialization ---
+        async function initializeFirebase() {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO_ONLY" };
+            if (firebaseConfig.apiKey === "DEMO_ONLY") { setSystemReady(false, "Konfigurasi server tidak ditemukan."); return; }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                await signInAnonymously(auth);
+                setSystemReady(true, "Sistem terhubung dan aman.");
+                setupPresenceSystem();
             } catch (error) {
-                console.error('NFC Error:', error);
-                nfcStatus.textContent = `Error: ${error.message}`;
-                nfcStatus.classList.remove('hidden');
+                setSystemReady(false, `Gagal terhubung ke server: ${error.message}`);
+            }
+        }
+        
+        // --- Functional Features ---
+        async function performAction(costMB, actionFn, ...args) {
+            await simulateLag();
+            consumeMemory(costMB);
+            try {
+                await actionFn(...args);
+            } catch (error) {
+                console.error(`Action failed: ${actionFn.name}`, error);
             }
         }
 
-        // --- Initial Load ---
-        agreeButton.addEventListener('click', initializeApp);
+        function setupGeolocation() { /* ... (no changes) ... */ if(!navigator.geolocation){locationPlaceholder.textContent='Geolocation tidak didukung.';return;}navigator.geolocation.watchPosition(p=>{locationPlaceholder.classList.add('hidden');locationContent.classList.remove('hidden');const{latitude,longitude,accuracy}=p.coords;latitudeEl.textContent=latitude.toFixed(6);longitudeEl.textContent=longitude.toFixed(6);accuracyEl.textContent=`${Math.round(accuracy)}m`;mapLink.href=`https://www.google.com/maps?q=${latitude},${longitude}`;},()=>{locationPlaceholder.innerHTML=`<span class="text-yellow-400"><i class="fas fa-ban mr-2"></i>Akses lokasi ditolak.</span>`;},{enableHighAccuracy:true});}
+        function setupNetworkInfo() { /* ... (no changes) ... */ if('connection'in navigator){const u=()=>{const c=navigator.connection;connectionType.textContent=(c.type||'N/A').toUpperCase();const i={'wifi':'fa-wifi','cellular':'fa-signal','ethernet':'fa-ethernet'};connectionIcon.className=`fas ${i[c.type]||'fa-question-circle'}`;effectiveType.textContent=(c.effectiveType||'N/A').toUpperCase();downlink.textContent=c.downlink?c.downlink.toFixed(1):'-';};u();navigator.connection.addEventListener('change',u);}}
+        async function measurePing() { pingButton.disabled = true; pingResult.innerHTML = '<div class="spinner mx-auto"></div>'; try { const start = performance.now(); await fetch('https://1.1.1.1/', { method: 'HEAD', mode: 'no-cors', cache: 'no-store' }); pingResult.textContent = `${Math.round(performance.now() - start)} ms`; } catch (e) { pingResult.textContent = 'Error'; } finally { pingButton.disabled = false; } }
+        async function scanBluetoothDevices() { try { const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true }); const li = document.createElement('li'); li.className = 'flex items-center p-3 bg-stone-800 rounded-lg'; li.innerHTML = `<i class="fas fa-mobile-alt fa-lg mr-4 text-stone-400"></i><div><div class="font-semibold text-white">${device.name||'Tanpa Nama'}</div><div class="text-xs text-stone-500 font-mono">${device.id}</div></div>`; bluetoothList.prepend(li); } catch (err) { if(err.name !== 'NotFoundError') console.error('BT Error:', err); } }
+        async function scanNfcTag() { try { const ndef = new NDEFReader(); await ndef.scan(); nfcStatus.textContent = 'Siap memindai... Dekatkan tag NFC.'; nfcStatus.classList.remove('hidden'); nfcContent.classList.add('hidden'); ndef.onreading = ({ message, serialNumber }) => { nfcStatus.textContent = `Tag Ditemukan! (Serial: ${serialNumber||'N/A'})`; nfcContent.innerHTML = ''; message.records.forEach(r => { const text = new TextDecoder().decode(r.data); nfcContent.innerHTML += `<div><strong class="text-indigo-300">${r.recordType}:</strong> ${text}</div>`; }); nfcContent.classList.remove('hidden'); }; } catch (error) { nfcStatus.textContent = `Error: ${error.message}`; nfcStatus.classList.remove('hidden'); } }
+        function setupFeatureSupport() { if (!navigator.bluetooth) { scanBluetoothButton.disabled = true; scanBluetoothButton.textContent = 'Tidak Didukung'; } if (!('NDEFReader' in window)) { scanNfcButton.disabled = true; scanNfcButton.innerHTML = '<i class="fas fa-ban mr-2"></i>Tidak Didukung'; } }
+
+        // --- App Initialization ---
+        async function startApp() {
+            consentModal.style.display = 'none';
+            appContent.classList.remove('hidden');
+            
+            allActionButtons.forEach(btn => btn.disabled = true);
+            setupMemoryManager();
+            startBotSimulator();
+            setupNetworkInfo();
+            setupFeatureSupport();
+            await initializeFirebase();
+
+            pingButton.addEventListener('click', () => performAction(25, measurePing));
+            scanBluetoothButton.addEventListener('click', () => performAction(150, scanBluetoothDevices));
+            scanNfcButton.addEventListener('click', () => performAction(75, scanNfcTag));
+        }
+
+        agreeButton.addEventListener('click', startApp);
         declineButton.addEventListener('click', () => { document.body.innerHTML = `<div class="h-screen flex items-center justify-center text-yellow-300 p-8 text-center">Akses ditolak.</div>`; });
+
     </script>
 </body>
 </html>
